@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="main.css">
+  <title>Document</title>
+  <style>
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="terminal-line">
+      <span id="static">username: </span>
+      <span id="typing-effect">semisemisea.</span>
+    </div>
+    <div class="terminal-line">
+      <span id="static_pswd">password: </span>
+    </div>
+    <div class="nav-header">
+      <p id="nav-title">Navigation Bar</p>
+    </div>
+    <div class="nav-links">
+      <ul>
+        <li><a href="#About-me">About me</a></li>
+        <li><a href="#project">Project</a></li>
+        <li><a href="#links">Links</a></li>
+      </ul>
+    </div>
+    <script>
+      const navTitle = document.getElementById("nav-title");
+      const navLinks = document.querySelectorAll(".nav-links a");
+
+      navLinks.forEach(link => {
+        link.addEventListener("mouseenter", () => {
+          navTitle.textContent = "Go to...?";
+          navTitle.classList.add("go-to");
+        });
+        link.addEventListener("mouseleave", () => {
+          navTitle.textContent = "Navigation bar";
+          navTitle.classList.remove("go-to");
+        });
+      });
+    </script>
+  </header>
+  <div class="main-elements">
+    <div class="brief-intro" id="About-me">
+      <hr>
+      <h2 id="About-me-h2">About me</h2>
+      <div>
+        <img id="pfp" src="photos/pfp.jpg" alt="me">
+        <script>
+          const pfp = document.getElementById("pfp");
+          pfp.addEventListener("mouseenter", () => {
+            pfp.classList.add("go-to");
+          })
+          pfp.addEventListener("mouseleave", () => {
+            pfp.classList.remove("go-to");
+          })
+        </script>
+      </div>
+      <div>
+        <p id="name">左天佑</p>
+      </div>
+      <h3>Education</h3>
+      <div class="edu">
+        <ul>
+          <li>
+            <a href="https://www.cqbz.cn">Chongqing No.8 Secondary High School (2021.9 - 2024.9)</p>
+          </li>
+          <li>
+            <a href="https://bit.edu.cn">Beijing Institution of Technology (2024.9 - now)</a>
+          </li>
+        </ul>
+      </div>
+      <br>
+      <h3>Self-Introduction</h3>
+      <div class="introduction">
+        <p>I'm a student major in Computer Science and Technology, at sophomore stage.</p>
+        <p>I love exploring music, especially electronic, midwest-emo and rock music. </p>
+        <p>I also make music.You can find my released music below.</p>
+        <p>I ride bikes alot, though I came from Chongqing</p>
+        <p>I'm fond of learning oi algorithm to solve problem.</p>
+        <p>I'm under the name of 'semisemisea' in some internet place.</p>
+        <p id="arch">I use Arch Linux by the way</p>
+        <p>I'm familiar with Rust, C and Python, now writing a interpreter in Rust</p>
+      </div>
+      <script>
+        const para = document.querySelectorAll(".introduction p");
+        const arch = document.getElementById("arch");
+        para.forEach(p => {
+          p.addEventListener("mouseenter", () => {
+            p.classList.add("go-to");
+          })
+          p.addEventListener("mouseleave", () => {
+            p.classList.remove("go-to");
+          })
+        })
+        arch.addEventListener("mouseenter", () => {
+          arch.textContent = "Actually I'm not >3. I'm on Mac"
+        })
+        arch.addEventListener("mouseleave", () => {
+          arch.textContent = "I use Arch Linux by the way"
+        })
+      </script>
+      <br>
+      <hr>
+    </div>
+    <div class="project" id="project">
+      <h2>Project</h2>
+      <p>I'm responsible for some coding part of this project and git control.</p>
+      <p>I will handle the team in UI, code, game design communication</p>
+      <p>Due to the time limit, AI-generated code will be used to enhance animation.</p>
+      <p>We will use canvas and svg in HTML5 and animate it by Anime.js</p>
+      <p>When the porject comes polish stage, we will consider learning and using Vue.js</p>
+    </div>
+    <br>
+    <hr>
+    <div class="personal-links" id="links">
+      <h2>Links</h2>
+      <ul>
+        <li><a href="https://github.com/choked-zzZ">Github</a></li>
+        <li><a href="https://music.163.com/#/artist?id=34310579">Neteast Music</a></li>
+        <li>
+          <a id="wechat_paste" onclick="copytext()" href="javascript:void(0);">Wechat</a>
+        </li>
+      </ul>
+      <p style="font-size: 14px">You can click it to access or copy the link >3</p>
+    </div>
+    <div>
+      <img id="rana" src="photos/rana_eat.jpg" alt="cute cat >3">
+      <script>
+        const pic = document.getElementById("rana");
+        pic.addEventListener("mouseenter", () => {
+          pic.src = "photos/rana_flower.jpg";
+        })
+        pic.addEventListener("mouseleave", () => {
+          pic.src = "photos/rana_eat.jpg";
+        })
+      </script>
+    </div>
+  </div>
+  <canvas id="matrix"></canvas>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+  <script src="matrix.js"></script>
+  <script src="http://localhost:35729/livereload.js"></script>
+
+  <script>
+    function copytext() {
+      navigator.clipboard.writeText("DeathOfSofia").then(() => {
+        alert("Wechat id has been copied to your pasteborad");
+      }).catch(err => {
+        console.error("failed: ", err);
+      });
+    }
+
+    const textEl = document.querySelector('#typing-effect');
+    const text = textEl.textContent;
+    const textLength = text.length;
+
+
+    anime.timeline({
+      loop: true,
+      autoplay: true
+    })
+      .add({
+        targets: '#typing-effect',
+        width: [0, `${textLength}ch`],
+        easing: `steps(${textLength})`,
+        duration: textLength * 140
+      })
+      .add({
+        targets: "#typing-effect",
+        duration: 1500,
+      })
+      .add({
+        targets: '#typing-effect',
+        width: [`${textLength}ch`, 0],
+        easing: `steps(${textLength})`,
+        duration: textLength * 120,
+      })
+      .add({
+        targets: "#typing-effect",
+        duration: 500,
+      });
+
+  </script>
+
+</body>
+
+</html>

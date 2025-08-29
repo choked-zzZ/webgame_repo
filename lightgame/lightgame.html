@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>围棋人生 - 点灯游戏集成</title>
+    <link rel="stylesheet" href="lightgame.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 视觉小说部分 -->
+        <div id="visual-novel">
+            <div class="chapter-title">Chapter 1：梦境对局</div>
+            <div id="story-container">
+                <div id="dialogue-box">
+                    <div id="character-name">故事背景</div>
+                    <div id="dialogue-text">A做了一个梦，来到了一个陌生的地方。眼前是一个古老的棋盘，而坐在对面的是一位耄耋之年的老人。老者邀请A进行一场特殊的对局，这不是传统的围棋，而是一场考验智慧与心境的点灯游戏。</div>
+                </div>
+            </div>
+            <div id="choices-container">
+                <button class="choice-btn" onclick="startGame()">开始点灯游戏</button>
+                <button class="choice-btn" onclick="showStory()">了解更多</button>
+            </div>
+        </div>
+        
+        <!-- 点灯游戏部分 -->
+        <div id="lights-out-game">
+            <div class="game-header">
+                <h2 class="game-title">老者的点灯谜题</h2>
+                <p class="game-instructions">老者说道："年轻人，点灯如人生。点击一盏灯会改变它和四周灯的状态。真正的智慧不在于强行改变，而在于理解其中的联系与平衡。"</p>
+            </div>
+            
+            <div id="game-board">
+                <!-- 灯泡将由JavaScript动态生成 -->
+            </div>
+            
+            <div id="moves-count">移动次数: 0</div>
+            <div id="game-message"></div>
+            
+            <div class="game-controls">
+                <button class="control-btn" onclick="resetGame()">重新开始</button>
+                <button class="control-btn" onclick="showVisualNovel()">返回故事</button>
+                <button class="control-btn" onclick="giveHint()">请求提示</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏状态
+        const gameState = {
+            board: [],
+            size: 5,
+            moves: 0,
+            gameActive: false
+        };
+        
+        // 剧情文本
+        const storyTexts = {
+            intro: "A做了一个梦，来到了一个陌生的地方。眼前是一个古老的棋盘，而坐在对面的是一位耄耋之年的老人。老者邀请A进行一场特殊的对局，这不是传统的围棋，而是一场考验智慧与心境的点灯游戏。",
+            elderIntro: "老者说道：'年轻人，点灯如人生。点击一盏灯会改变它和四周灯的状态。真正的智慧不在于强行改变，而在于理解其中的联系与平衡。'",
+            elderChallenge: "老者微笑道：'这局游戏看似简单，却蕴含着深奥的道理。你若能解开它，或许能明白围棋之外的真谛。'",
+            playerWin: "老者点头赞许：'不错，你解开了谜题。但你是否明白，这不仅仅是一场游戏的胜利？真正的挑战，是放下对胜负的执念。'",
+            playerLose: "老者平静地说：'你输了，但输与赢不过是表象。真正的难题，是你仍被心中的执念束缚，无法超越眼前的局限。'",
+            elderFinal: "梦中的老者消失了，A孤单一人，站在空荡荡的棋盘前，心头空洞。他突然明白，自己一直追求的胜利，或许并不是最重要的。"
+        };
+        
+        // 初始化函数
+        function initializeGame() {
+            const gameBoard = document.getElementById('game-board');
+            gameBoard.innerHTML = '';
+            gameBoard.style.gridTemplateColumns = `repeat(${gameState.size}, 1fr)`;
+            
+            // 创建初始游戏板（随机状态）
+            gameState.board = [];
+            for (let i = 0; i < gameState.size; i++) {
+                gameState.board[i] = [];
+                for (let j = 0; j < gameState.size; j++) {
+                    // 随机设置灯的状态（70%的概率为开启）
+                    const isOn = Math.random() > 0.3;
+                    gameState.board[i][j] = isOn;
+                    
+                    const light = document.createElement('div');
+                    light.className = `light ${isOn ? 'on' : 'off'}`;
+                    light.dataset.row = i;
+                    light.dataset.col = j;
+                    light.innerHTML = isOn ? '💡' : '○';
+                    light.addEventListener('click', () => toggleLight(i, j));
+                    
+                    gameBoard.appendChild(light);
+                }
+            }
+            
+            gameState.moves = 0;
+            document.getElementById('moves-count').textContent = '移动次数: 0';
+            document.getElementById('game-message').textContent = '';
+            gameState.gameActive = true;
+            
+            // 更新游戏说明
+            document.querySelector('.game-instructions').textContent = gameState.moves === 0 ? 
+                storyTexts.elderIntro : storyTexts.elderChallenge;
+        }
+        
+        // 切换灯的状态
+        function toggleLight(row, col) {
+            if (!gameState.gameActive) return;
+            
+            // 切换点击的灯
+            toggleSingleLight(row, col);
+            
+            // 切换相邻的灯
+            if (row > 0) toggleSingleLight(row - 1, col); // 上
+            if (row < gameState.size - 1) toggleSingleLight(row + 1, col); // 下
+            if (col > 0) toggleSingleLight(row, col - 1); // 左
+            if (col < gameState.size - 1) toggleSingleLight(row, col + 1); // 右
+            
+            gameState.moves++;
+            document.getElementById('moves-count').textContent = `移动次数: ${gameState.moves}`;
+            
+            checkWin();
+        }
+        
+        // 切换单个灯的状态
+        function toggleSingleLight(row, col) {
+            gameState.board[row][col] = !gameState.board[row][col];
+            const light = document.querySelector(`.light[data-row="${row}"][data-col="${col}"]`);
+            
+            if (gameState.board[row][col]) {
+                light.classList.remove('off');
+                light.classList.add('on');
+                light.innerHTML = '💡';
+            } else {
+                light.classList.remove('on');
+                light.classList.add('off');
+                light.innerHTML = '○';
+            }
+        }
+        
+        // 检查是否获胜
+        function checkWin() {
+            // 检查是否所有灯都关闭
+            const allOff = gameState.board.flat().every(state => !state);
+            
+            if (allOff) {
+                document.getElementById('game-message').textContent = '恭喜！你成功解决了谜题！';
+                gameState.gameActive = false;
+                
+                // 更新剧情文本
+                document.querySelector('.game-instructions').textContent = storyTexts.playerWin;
+                
+                // 3秒后显示返回故事的按钮
+                setTimeout(() => {
+                    if (confirm("恭喜你完成了点灯游戏！老者的话让你若有所思。是否返回故事？")) {
+                        showVisualNovel();
+                        // 更新小说部分文本
+                        document.getElementById('dialogue-text').innerHTML = 
+                            "你成功解开了老者的点灯谜题，但他的话语让你陷入沉思：<br><br>" +
+                            "<i>\"真正的智慧不在于强行改变，而在于理解其中的联系与平衡。\"</i><br><br>" +
+                            "你开始思考，自己一直以来对胜负的执着，是否让你错过了更重要的东西。";
+                    }
+                }, 1000);
+            }
+        }
+        
+        // 请求提示
+        function giveHint() {
+            if (!gameState.gameActive) return;
+            
+            document.getElementById('game-message').textContent = '老者提示：试着从角落开始，注意灯之间的相互影响。';
+            
+            // 3秒后清除消息
+            setTimeout(() => {
+                document.getElementById('game-message').textContent = '';
+            }, 3000);
+        }
+        
+        // 重置游戏
+        function resetGame() {
+            initializeGame();
+        }
+        
+        // 显示点灯游戏
+        function startGame() {
+            document.getElementById('visual-novel').style.display = 'none';
+            document.getElementById('lights-out-game').style.display = 'block';
+            initializeGame();
+        }
+        
+        // 显示视觉小说部分
+        function showVisualNovel() {
+            document.getElementById('lights-out-game').style.display = 'none';
+            document.getElementById('visual-novel').style.display = 'block';
+        }
+        
+        // 显示更多故事
+        function showStory() {
+            document.getElementById('character-name').textContent = '梦境对局';
+            document.getElementById('dialogue-text').innerHTML = 
+                "老者平静地说道：<br><br>" +
+                "<i>\"年轻人，我们来下一盘特殊的棋吧。这不是你熟悉的围棋，而是一场点灯游戏。\"</i><br><br>" +
+                "<i>\"点灯如人生，每当你改变一盏灯，也会影响它周围的灯。真正的智慧不在于强行改变，而在于理解其中的联系与平衡。\"</i><br><br>" +
+                "<i>\"你若能解开这个谜题，或许能明白围棋之外的真谛。\"</i>";
+        }
+        
+        // 页面加载时初始化
+        window.onload = function() {
+            // 初始化剧情文本
+            document.getElementById('dialogue-text').textContent = storyTexts.intro;
+        };
+    </script>
+</body>
+</html>

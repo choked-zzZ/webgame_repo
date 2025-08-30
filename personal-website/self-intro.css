@@ -1,12 +1,12 @@
         @font-face {
             font-family: 'Splat';
-            src: url('字体\\Crystal-Regular-2.ttf') format('truetype');
+            src: url('font\\Crystal-Regular-2.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
         @font-face {
             font-family: 'xingkai';
-            src: url('字体\\YeZiGongChangYouLongXingKai-2.ttf') format('truetype');
+            src: url('font\\YeZiGongChangYouLongXingKai-2.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
@@ -117,7 +117,7 @@
             border-radius: 30px;
         }
         .overlay-image {
-            background: url('image/竹子.png') no-repeat center center;
+            background: url('image/bamboo.png') no-repeat center center;
             background-size: 150px;
             width: 200px;
             height:450px;

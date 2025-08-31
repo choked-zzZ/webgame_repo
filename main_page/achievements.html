@@ -24,13 +24,13 @@
       <div class="achievements-content">
         <div class="achievements-scroll-container">
           <div class="achievements-scroll-wrapper">
-            <div class="achievement-item"></div>
-            <div class="achievement-item"></div>
-            <div class="achievement-item"></div>
-            <div class="achievement-item"></div>
-            <div class="achievement-item"></div>
-            <div class="achievement-item"></div>
-            <div class="achievement-item"></div>
+            <div class="achievement-item">
+              <div class="achievement-icon"></div>
+              <div class="achievement-details">
+                <h3>达成结局</h3>
+                <p>完成游戏的主要故事线</p>
+              </div>
+            </div>
             <div class="achievement-item"></div>
             <div class="achievement-item"></div>
             <div class="achievement-item"></div>
@@ -50,3 +50,46 @@
 </body>
 
 </html>
+<script>
+  // 检查登录状态，未登录则重定向到登录页
+  document.addEventListener('DOMContentLoaded', function() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const currentUser = localStorage.getItem('currentUser');
+
+    if (!isLoggedIn || !currentUser) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // 加载用户绑定的成就数据
+    function loadUserAchievements(username) {
+      const achievements = JSON.parse(localStorage.getItem(`achievements_${username}`) || '[]');
+      // 渲染成就数据
+      renderAchievements(achievements);
+    }
+
+    // 渲染成就数据
+    function renderAchievements(achievements) {
+      const achievementsGrid = document.querySelector('.achievements-grid');
+      // 清空现有内容
+      achievementsGrid.innerHTML = '';
+
+      // 渲染成就项
+      achievements.forEach(achievement => {
+        const item = document.createElement('div');
+        item.className = 'achievement-item';
+        item.innerHTML = `
+          <div class="achievement-icon"></div>
+          <div class="achievement-details">
+            <h3>${achievement.title}</h3>
+            <p>${achievement.description}</p>
+          </div>
+        `;
+        achievementsGrid.appendChild(item);
+      });
+    }
+
+    // 初始化加载用户成就
+    loadUserAchievements(currentUser);
+  });
+</script>

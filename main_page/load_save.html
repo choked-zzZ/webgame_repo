@@ -37,3 +37,32 @@
 </body>
 
 </html>
+
+<script>
+  // 检查登录状态，未登录则重定向到登录页
+  document.addEventListener('DOMContentLoaded', function() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const currentUser = localStorage.getItem('currentUser');
+
+    if (!isLoggedIn || !currentUser) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // 加载用户绑定的存档数据
+    function loadUserSaves(username) {
+      const saves = JSON.parse(localStorage.getItem(`saves_${username}`) || '[]');
+      // 渲染存档槽位
+      renderSaveSlots(saves);
+    }
+
+    // 渲染存档槽位
+    function renderSaveSlots(saves) {
+      const saveSlots = document.querySelector('.save-slots');
+      // 现有存档渲染逻辑保持不变...
+    }
+
+    // 初始化加载用户存档
+    loadUserSaves(currentUser);
+  });
+</script>

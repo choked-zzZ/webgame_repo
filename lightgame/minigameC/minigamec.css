@@ -1,0 +1,186 @@
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "KaiTi", "STKaiti", serif;
+    background: url("image/background.png") no-repeat center/cover; /* 古风水墨背景 */
+    color: #fff;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  h1 {
+    margin: 40px 0 20px 0;
+    font-size: 40px;
+    color: #f5deb3;
+    text-shadow: 0 0 20px rgba(245,222,179,0.8);
+    font-family: "KaiTi", "STKaiti", serif;
+  }
+
+  .game {
+    position: relative;
+    margin: 20px auto 0 auto;
+    width: 750px;
+    height: 600px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    background: rgba(20, 20, 20, 0.65);
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    overflow: hidden;
+  }
+
+  .lane {
+    position: absolute;
+    width: 250px;
+    height: 100%;
+    border-left: 2px solid rgba(255,255,255,0.15);
+    border-right: 2px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.03);
+  }
+  .lane:nth-child(1) { left: 0; }
+  .lane:nth-child(2) { left: 250px; }
+  .lane:nth-child(3) { left: 500px; }
+
+  .note {
+    position: absolute;
+    width: 230px;
+    height: 30px;
+    background: linear-gradient(to bottom, #FFD700, #FF8C00);
+    left: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(255,215,0,0.8);
+    transition: transform 0.1s ease;
+  }
+
+  .note:active { transform: scale(1.05); }
+
+  .judge-line {
+    position: absolute;
+    bottom: 100px;
+    width: 100%;
+    height: 4px;
+    background: #83cc5f;
+    box-shadow: 0 0 15px #83cc5f;
+  }
+
+  #scoreboard {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  #scoreboard .scroll {
+    background: url("image/scroll.png") no-repeat center;
+    background-size: contain;
+    width: 300px;
+    padding: 30px 20px;
+    font-family: "KaiTi", "STKaiti", serif;
+    color: #060505;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+
+  #scoreboard .scroll p {
+    margin: 8px 0;
+    font-size: 20px;
+    text-shadow: 0 0 5px rgba(0,0,0,0.6);
+  }
+
+  /* 判定提示层 */
+  #judgeDisplay {
+    position: fixed;
+    top: 35%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    pointer-events: none;
+    z-index: 500;
+  }
+  #judgeText {
+    font-size: 52px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  #comboText {
+    font-size: 28px;
+    color: #FFD700;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .perfectText { color: #FFD700; text-shadow: 0 0 20px #FFD700, 0 0 40px #FFA500; }
+  .goodText { color: #00BFFF; text-shadow: 0 0 15px #00BFFF, 0 0 25px #1E90FF; }
+  .missText { color: #AAAAAA; text-shadow: 0 0 8px #444; }
+
+  /* 遮罩层 */
+  #overlay, #endingOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    transition: opacity 1s ease;
+  }
+  #overlay.fade-out { opacity: 0; pointer-events: none; }
+  #overlay .stack, #endingOverlay .stack {
+    display:flex; flex-direction:column; gap:18px; align-items:center; padding:24px;
+  }
+  #rules, #endingBox {
+    max-width:720px;
+    background:rgba(30,30,30,0.8);
+    border:1px solid #444;
+    border-radius:14px;
+    padding:24px;
+    margin:0 16px;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+    text-align:left;
+  }
+  #rules h2 { margin:0 0 12px; font-size:24px; }
+  #rules p,#rules li { line-height:1.7; }
+  .keycap {
+    display:inline-block;
+    border:1px solid #666;
+    border-bottom-width:3px;
+    padding:2px 8px;
+    border-radius:6px;
+    background:#2a2a2a;
+    font-weight:bold;
+  }
+
+  /* 结局标题美化 */
+  #endingBox h2 {
+    text-align: center;
+    font-size: 32px;
+    color: #FFD700;
+    text-shadow: 0 0 15px #FFA500, 0 0 30px #FF4500;
+    margin-bottom: 20px;
+  }
+
+  /* 按钮美化 */
+  #startBtn, #continueBtn, .restartBtn {
+    padding: 20px 40px;
+    font-size: 28px;
+    background: linear-gradient(45deg, #e0bd4b, #ca9118);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(255,255,255,0.7);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+  }
+  #endingBox .restartBtn {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  font-size: 20px;
+}
+
+#endingBox .restartBtn:hover {
+  transform: scale(1.05);
+}
+  #startBtn:hover, #continueBtn:hover, .restartBtn:hover {
+    transform: scale(1.07);
+    box-shadow: 0 0 35px rgba(255,255,255,0.9);
+  }

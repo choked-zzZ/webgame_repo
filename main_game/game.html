@@ -4,74 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>弈梦 - 视觉小说</title>
-  <link href="../main_page/style.css" rel="stylesheet">
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    
-    .game-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    
-    .game-screen {
-      max-width: 1200px;
-      max-height: 800px;
-      width: 100%;
-      aspect-ratio: 1200/800;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      overflow: hidden;
-      position: relative;
-      margin: 0 auto;
-    }
-    .game-content {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.2rem;
-      color: #333;
-    }
-    .dialog-box {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background-color: rgba(0,0,0,0.7);
-      color: white;
-      padding: 15px;
-      box-sizing: border-box;
-    }
-    .dialog-speaker {
-      font-weight: bold;
-      margin-bottom: 5px;
-      color: #ffd700;
-    }
-    .dialog-text {
-      line-height: 1.5;
-    }
-  </style>
+  <link href="game.css" rel="stylesheet">
 </head>
 <body>
   <div class="game-container">
     <div class="game-screen">
       <div class="game-content">
-        <!-- 视觉小说内容将在这里显示 -->
+        视觉小说内容将在这里显示
         游戏内容加载中...
       </div>
-      <div class="dialog-box">
-        <div class="dialog-speaker">角色名称</div>
-        <div class="dialog-text">这是对话内容区域，将显示角色对话和叙述文本。</div>
+      <div class="dialog-container">
+        <div class="character-sprite" id="character-sprite"></div>  
+        <div class="dialog-box">
+          <div class="dialog-left">
+            <div class="dialog-speaker" id="dialog-speaker">角色名称</div>
+          </div>
+          <div class="dialog-right"> 
+            <div class="dialog-text" id="dialog-text">这是对话内容区域，将显示角色对话和叙述文本。</div>
+          </div>
+        </div>
       </div>
       <!-- 游戏内容容器 -->
       <div id="game-embed-container" class="game-embed-container"></div>
@@ -122,205 +73,231 @@
   // updateDialog(getDialog(State.getCurrentIndex()));
 
   // 事件类型定义
-  class Event {
-    constructor(type, data) {
-      this.type = type; // 'dialog', 'choice', 'game'
-      this.data = data;
+  // 事件类型定义
+    class Event {
+        constructor(type, data,background=null) {
+            this.type = type; // 'dialog', 'choice', 'game'
+            this.data = data;
+            this.background = background;
+        }
     }
-  }
 
-  // 事件数组 - 存储所有事件
-  const events = [
-    // 场景一
-    new Event('dialog', { speaker: '旁白', text: 'A与C是青梅竹马，他们坐在阳光透过窗子洒下的桌子旁，棋盘上的黑白棋子整齐地排列着，两人已经对弈了许多回合。A的手指轻轻地碰触着一颗棋子，目光坚定而充满自信。'}),
-    new Event('dialog', { speaker: 'A', text: '你今天的表现不错，可是你想要赢我，还差得远呢。'}),
-    new Event('dialog', { speaker: 'C', text: '（微笑）你总是这么自信，A。每次和你对弈，总是能从你身上学到不少东西。'}),
-    new Event('dialog', { speaker: 'A', text: '你知道的，围棋可不只是技术，更多的是对对手的压制。若是我不让你看到一丝希望，你怎么可能会有胜算？'}),
-    new Event('dialog', { speaker: 'C', text: '（略带无奈）你总是这么骄傲，不过，你确实很强。'}),
-    new Event('dialog', { speaker: '旁白', text: '他的话语中充满了诚恳的敬意。'}),
-    new Event('dialog', { speaker: 'A', text: '强不强，还是得看棋局。这局你注定是败了。'}),
-    new Event('dialog', { speaker: '旁白', text: '两人微笑着交换了一个眼神，棋局的气氛变得更加激烈。A明显占据优势，棋盘上黑白两色的棋子不断被他轻松地布下。而C则越下越慢，明显感受到对方的压力。最终，A一举扳回了棋局的主动权，轻松地走向胜利。'}),
-    new Event('dialog', { speaker: 'A', text: '（得意地笑）怎么样，早说过了吧。你今天注定是输家。'}),
-    new Event('dialog', { speaker: 'C', text: '（无奈地笑）你总是这样，让人无话可说。希望下次能给我一点机会吧。'}),
-    new Event('dialog', { speaker: 'A', text: '机会？你没看出来吗？这场棋局从一开始就没机会。'}),
-    new Event('dialog', { speaker: '旁白', text: '两人开心地收拾棋盘，空气中弥漫着轻松的气息。但A的内心却并没有那么平静。胜利的光环背后，他知道自己内心深处始终缺少些什么。'}),
-    
-    // 场景二
-    new Event('dialog', { speaker: '旁白', text: 'A做了一个梦，A来到了一个陌生的地方。眼前是一个古老的棋盘，而坐在对面的是一位耄耋之年的老人。'}),
-    new Event('dialog', { speaker: '老者', text: '（声音沉稳）年轻人，我们来下盘棋吧。'}),
-    new Event('dialog', { speaker: 'A', text: '（自信地微笑）没问题，我一定会赢你。'}),
-    new Event('dialog', { speaker: '老者', text: '（轻轻一笑）围棋的真正意义，或许不只是赢或输。'}),
-    new Event('dialog', { speaker: 'A', text: '您这是说笑吧？围棋就是要赢，不然有什么意义？'}),
-    new Event('dialog', { speaker: '老者', text: '真正的意义，往往隐藏在棋局之外。'}),
-    new Event('dialog', { speaker: 'A', text: '我不明白。'}),
-    new Event('game',   'GameA' ),
-    new Event('dialog', { speaker: '旁白', text: '棋局渐渐展开，A的棋艺无懈可击，随着对弈的深入，A发现对面的老人似乎在以一种他无法预料的方式，轻松化解了他每一步的攻击。'}),
-    new Event('dialog', { speaker: 'A', text: '你怎么可能这么快就看透了我的布局？'}),
-    new Event('dialog', { speaker: '老者', text: '胜负，只是表象。你看到的棋局，远不止这一张桌面。'}),
-    new Event('dialog', { speaker: 'A', text: '你这是什么意思？难道就是看清棋盘，做好布局，拼尽全力，才能胜利吗？'}),
-    new Event('dialog', { speaker: '老者', text: '（眼中闪烁着智慧的光芒）如果你只看着棋盘，你将永远困在其中。放下心中的执念，你的棋路才会开阔。'}),
-    new Event('dialog', { speaker: 'A', text: '（愣住）放下执念？这不可能，胜负才是衡量一切的标准！'}),
-    new Event('dialog', { speaker: '旁白', text: '随着A的愤怒，他的棋局渐渐失控，步步败退。最终，他被老人轻松击败。'}),
-    new Event('dialog', { speaker: 'A', text: '（慌张）不！我不能输！'}),
-    new Event('dialog', { speaker: '旁白', text: '但棋盘上的局势已然明了，A心头的焦虑如潮水般涌来。老者平静地望着他。'}),
-    new Event('dialog', { speaker: '老者', text: '你输了，但输与赢不过是表象。真正的难题，是你仍被心中的执念束缚，无法超越眼前的局限。'}),
-    new Event('dialog', { speaker: 'A', text: '我不理解……'}),
-    new Event('dialog', { speaker: '旁白', text: '梦中的老者消失了，A孤单一人，站在空荡荡的棋盘前，心头空洞。突然，A猛地睁开眼睛，发现自己又回到了现实。'}),
-    
-    // 场景三
-    new Event('dialog', { speaker: '旁白', text: 'A惊醒，额头上满是冷汗，心跳异常剧烈。周围的一切显得那么真实，阳光透过窗子洒进了屋内，但他却依旧感到迷茫。梦中的老者、那局棋局，似乎有着无尽的深意，触动了他内心最深处的痛点。'}),
-    new Event('dialog', { speaker: 'A', text: '（自言自语）我……为什么会输给他？我明明是赢得了那么多局棋，为什么这一局，我会输得那么彻底？'}),
-    new Event('dialog', { speaker: '旁白', text: 'A低头看着手中的围棋，心中依然无法释怀。梦中的老者告诉他，真正的胜利并不在于棋局，而在于放下对胜负的执念。这种冲击让他感到前所未有的困惑和不安。'}),
-    new Event('dialog', { speaker: '旁白', text: '他轻轻握住一颗棋子，陷入了深深的沉思。棋盘上的每一步，每一个胜负，是否真的能代表他所有的努力和追求？'})
-  ];
+    // 事件数组 - 存储所有事件
+    const events = [
+        // 场景一
+        new Event('dialog', { speaker: '旁白', text: 'A与C是青梅竹马，他们坐在阳光透过窗子洒下的桌子旁，棋盘上的黑白棋子整齐地排列着，两人已经对弈了许多回合。A的手指轻轻地碰触着一颗棋子，目光坚定而充满自信。'}, '../personal-website/image/dandelion.png'),
+        new Event('dialog', { speaker: 'A', text: '你今天的表现不错，可是你想要赢我，还差得远呢。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'C', text: '（微笑）你总是这么自信，A。每次和你对弈，总是能从你身上学到不少东西。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'A', text: '你知道的，围棋可不只是技术，更多的是对对手的压制。若是我不让你看到一丝希望，你怎么可能会有胜算？', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'C', text: '（略带无奈）你总是这么骄傲，不过，你确实很强。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '旁白', text: '他的话语中充满了诚恳的敬意。'}),
+        new Event('dialog', { speaker: 'A', text: '强不强，还是得看棋局。这局你注定是败了。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '旁白', text: '两人微笑着交换了一个眼神，棋局的气氛变得更加激烈。A明显占据优势，棋盘上黑白两色的棋子不断被他轻松地布下。而C则越下越慢，明显感受到对方的压力。最终，A一举扳回了棋局的主动权，轻松地走向胜利。'}),
+        new Event('dialog', { speaker: 'A', text: '（得意地笑）怎么样，早说过了吧。你今天注定是输家。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'C', text: '（无奈地笑）你总是这样，让人无话可说。希望下次能给我一点机会吧。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'A', text: '机会？你没看出来吗？这场棋局从一开始就没机会。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '旁白', text: '两人开心地收拾棋盘，空气中弥漫着轻松的气息。但A的内心却并没有那么平静。胜利的光环背后，他知道自己内心深处始终缺少些什么。'}),
+        
+        // 场景二
+        new Event('dialog', { speaker: '旁白', text: 'A做了一个梦，A来到了一个陌生的地方。眼前是一个古老的棋盘，而坐在对面的是一位耄耋之年的老人。'}, '../main_page/image/home_page/background.png'),
+        new Event('dialog', { speaker: '老者', text: '（声音沉稳）年轻人，我们来下盘棋吧。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'A', text: '（自信地微笑）没问题，我一定会赢你。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '老者', text: '（轻轻一笑）围棋的真正意义，或许不只是赢或输。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'A', text: '您这是说笑吧？围棋就是要赢，不然有什么意义？', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '老者', text: '真正的意义，往往隐藏在棋局之外。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'A', text: '我不明白。', sprite: 'character.png'}),
+        new Event('game', 'GameA'),
+        new Event('dialog', { speaker: '旁白', text: '棋局渐渐展开，A的棋艺无懈可击，随着对弈的深入，A发现对面的老人似乎在以一种他无法预料的方式，轻松化解了他每一步的攻击。'}),
+        new Event('dialog', { speaker: 'A', text: '你怎么可能这么快就看透了我的布局？', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '老者', text: '胜负，只是表象。你看到的棋局，远不止这一张桌面。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'A', text: '你这是什么意思？难道就是看清棋盘，做好布局，拼尽全力，才能胜利吗？', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '老者', text: '（眼中闪烁着智慧的光芒）如果你只看着棋盘，你将永远困在其中。放下心中的执念，你的棋路才会开阔。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'A', text: '（愣住）放下执念？这不可能，胜负才是衡量一切的标准！', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '旁白', text: '随着A的愤怒，他的棋局渐渐失控，步步败退。最终，他被老人轻松击败。'}),
+        new Event('dialog', { speaker: 'A', text: '（慌张）不！我不能输！', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '旁白', text: '但棋盘上的局势已然明了，A心头的焦虑如潮水般涌来。老者平静地望着他。'}),
+        new Event('dialog', { speaker: '老者', text: '你输了，但输与赢不过是表象。真正的难题，是你仍被心中的执念束缚，无法超越眼前的局限。', sprite: 'character.png'}),
+        new Event('dialog', { speaker: 'A', text: '我不理解……', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '旁白', text: '梦中的老者消失了，A孤单一人，站在空荡荡的棋盘前，心头空洞。突然，A猛地睁开眼睛，发现自己又回到了现实。'}),
+        
+        // 场景三
+        new Event('dialog', { speaker: '旁白', text: 'A惊醒，额头上满是冷汗，心跳异常剧烈。周围的一切显得那么真实，阳光透过窗子洒进了屋内，但他却依旧感到迷茫。梦中的老者、那局棋局，似乎有着无尽的深意，触动了他内心最深处的痛点。'}, '../personal-website/image/dandelion.png'),
+        new Event('dialog', { speaker: 'A', text: '（自言自语）我……为什么会输给他？我明明是赢得了那么多局棋，为什么这一局，我会输得那么彻底？', sprite: 'character.png'}),
+        new Event('dialog', { speaker: '旁白', text: 'A低头看着手中的围棋，心中依然无法释怀。梦中的老者告诉他，真正的胜利并不在于棋局，而在于放下对胜负的执念。这种冲击让他感到前所未有的困惑和不安。'}),
+        new Event('dialog', { speaker: '旁白', text: '他轻轻握住一颗棋子，陷入了深深的沉思。棋盘上的每一步，每一个胜负，是否真的能代表他所有的努力和追求？'})
+    ];
 
-  // 更新事件显示
   function updateEvent(event) {
+    const dialogBox = document.querySelector('.dialog-box');
+    const gameContainer = document.getElementById('game-embed-container');
+    const gameContent = document.querySelector('.game-content');
+    const speakerElement = document.getElementById('dialog-speaker');
+    const textElement = document.getElementById('dialog-text');
+    const spriteElement = document.getElementById('character-sprite');
+
+    // 统一处理背景图
+    if (event.background) {
+        document.body.style.backgroundImage = `url(${event.background})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundRepeat = 'no-repeat';
+    }
+
     if (event.type === 'dialog') {
-      // 退出游戏状态
-      isInGame = false;
-      // 移除游戏CSS
-      const gameStyle = document.getElementById('game-stylesheet');
-      if (gameStyle) gameStyle.remove();
-      // 显示对话区域，隐藏游戏容器
-      document.querySelector('.dialog-box').style.display = 'block';
-      document.querySelector('.game-content').style.display = 'flex';
-      document.getElementById('game-embed-container').style.display = 'none';
+        // 退出游戏状态
+        isInGame = false;
+        
+        // 显示对话区域，隐藏游戏容器
+        dialogBox.style.display = 'block';
+        gameContent.style.display = 'flex';
+        gameContainer.style.display = 'none';
 
-      const { speaker, text } = event.data;
-      const speakerElement = document.querySelector('.dialog-speaker');
-      const textElement = document.querySelector('.dialog-text');
+        const { speaker, text, sprite } = event.data;
 
-      if (speakerElement && textElement) {
+        // 隐藏所有元素以实现淡入效果
         speakerElement.style.opacity = '0';
         textElement.style.opacity = '0';
+        spriteElement.style.opacity = '0';
 
+        // 延时更新内容，确保淡入效果平滑
         setTimeout(() => {
-          speakerElement.textContent = speaker;
-          textElement.textContent = text;
-          speakerElement.style.opacity = '1';
-          textElement.style.opacity = '1';
+            speakerElement.textContent = speaker;
+            textElement.textContent = text;
+            speakerElement.style.opacity = '1';
+            textElement.style.opacity = '1';
+
+            // 根据事件数据决定是否显示立绘
+            if (sprite) {
+                spriteElement.style.backgroundImage = `url(${sprite})`;
+                spriteElement.style.opacity = '1';
+            } else {
+                spriteElement.style.backgroundImage = 'none'; // 清除背景图
+                spriteElement.style.opacity = '0';
+            }
         }, 300);
-      }
+
     } else if (event.type === 'game') {
-      if (event.data === 'GameA') {
-        // 进入游戏状态
-        isInGame = true;
-        // 隐藏对话区域，显示游戏容器
-        document.querySelector('.dialog-box').style.display = 'none';
-        document.querySelector('.game-content').style.display = 'none';
-        const gameContainer = document.getElementById('game-embed-container');
-        gameContainer.style.display = 'flex';
+        if (event.data === 'GameA') {
+            // 进入游戏状态
+            isInGame = true;
 
-        // AJAX加载另一个网页内容
-        fetch('../lightgame/GameA/lightgame.html')
-          .then(response => response.text())
-          .then(html => {
-            gameContainer.innerHTML = html;
-            // 添加延迟确保DOM就绪后再处理脚本
-            setTimeout(() => {
-              // 添加内容居中样式
-              const gameContent = gameContainer.querySelector('.game-container');
-              if (gameContent) {
-                gameContent.style.width = 'auto';
-                gameContent.style.maxWidth = '700px';
-                gameContent.style.height = '100%';
-                gameContent.style.boxSizing = 'border-box';
-                gameContent.style.display = 'flex';
-                gameContent.style.flexDirection = 'column';
-                gameContent.style.alignItems = 'center';
-                gameContent.style.justifyContent = 'center';
-              }
-              // 处理动态加载的脚本
-              const scripts = gameContainer.querySelectorAll('script');
-              scripts.forEach(oldScript => {
-                const newScript = document.createElement('script');
-                Array.from(oldScript.attributes).forEach(attr => {
-                  newScript.setAttribute(attr.name, attr.value);
-                });
-                let scriptContent = oldScript.textContent;
-                scriptContent = scriptContent.replace(/document\.addEventListener\('DOMContentLoaded',\s*function\(\)\s*\{/, '').replace(/\}\);/g, '');
-                newScript.textContent = scriptContent;
-                oldScript.parentNode.replaceChild(newScript, oldScript);
-              });
-              // 动态添加CSS链接
-              const link = document.createElement('link');
-              link.rel = 'stylesheet';
-              link.href = '../lightgame/GameA/lightgame.css';
-              link.id = 'game-stylesheet';
-              document.head.appendChild(link);
-            }, 0);
-          })
-          .catch(error => {
-            gameContainer.innerHTML = '<div class="error">无法加载游戏内容</div>';
-            console.error('加载失败:', error);
-          });
-      }
+            // 隐藏对话区域和立绘
+            dialogBox.style.display = 'none';
+            spriteElement.style.opacity = '0'; // 隐藏立绘
+            spriteElement.style.backgroundImage = 'none'; // 清除立绘背景图
+            
+            // 显示游戏容器
+            gameContent.style.display = 'none';
+            gameContainer.style.display = 'flex';
+
+            // AJAX加载另一个网页内容
+            fetch('../lightgame/GameA/lightgame.html')
+            .then(response => response.text())
+            .then(html => {
+                gameContainer.innerHTML = html;
+                // 添加延迟确保DOM就绪后再处理脚本
+                setTimeout(() => {
+                    const gameContent = gameContainer.querySelector('.game-container');
+                    if (gameContent) {
+                        gameContent.style.width = 'auto';
+                        gameContent.style.maxWidth = '700px';
+                        gameContent.style.height = '100%';
+                        gameContent.style.boxSizing = 'border-box';
+                        gameContent.style.display = 'flex';
+                        gameContent.style.flexDirection = 'column';
+                        gameContent.style.alignItems = 'center';
+                        gameContent.style.justifyContent = 'center';
+                    }
+                    // 处理动态加载的脚本
+                    const scripts = gameContainer.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(attr => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        let scriptContent = oldScript.textContent;
+                        scriptContent = scriptContent.replace(/document\.addEventListener\('DOMContentLoaded',\s*function\(\)\s*\{/, '').replace(/\}\);/g, '');
+                        newScript.textContent = scriptContent;
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                    // 动态添加CSS链接
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = '../lightgame/GameA/lightgame.css';
+                    link.id = 'game-stylesheet';
+                    document.head.appendChild(link);
+                }, 0);
+            })
+            .catch(error => {
+                gameContainer.innerHTML = '<div class="error">无法加载游戏内容</div>';
+                console.error('加载失败:', error);
+            });
+        }
     }
   }
-    // 可以添加其他事件类型的处理逻辑
-  //}
-
-  // 获取指定索引的事件
-  function getEvent(index) {
-    if (index >= 0 && index < events.length) {
-      return events[index];
+    // 获取指定索引的事件
+    function getEvent(index) {
+        if (index >= 0 && index < events.length) {
+            return events[index];
+        }
+        return null;
     }
-    return null;
-  }
 
-  // 状态机 - 管理事件状态
-  const State = {
-    currentEventIndex: 0,
-    
-    // 获取当前事件索引
-    getCurrentIndex: function() {
-      return this.currentEventIndex;
-    },
-    
-    // 设置当前事件索引
-    setCurrentIndex: function(index) {
-      this.currentEventIndex = index;
-    },
-    
-    // 增加事件索引并返回新值
-    incrementIndex: function() {
-      this.currentEventIndex++;
-      return this.currentEventIndex;
+    // 状态机 - 管理事件状态
+    const State = {
+        currentEventIndex: 0,
+        
+        // 获取当前事件索引
+        getCurrentIndex: function() {
+            return this.currentEventIndex;
+        },
+        
+        // 设置当前事件索引
+        setCurrentIndex: function(index) {
+            this.currentEventIndex = index;
+        },
+        
+        // 增加事件索引并返回新值
+        incrementIndex: function() {
+            this.currentEventIndex++;
+            return this.currentEventIndex;
+        }
+    };
+
+    // 显示下一个事件
+    function nextEvent() {
+        const newIndex = State.incrementIndex();
+        if (newIndex < events.length) {
+            updateEvent(getEvent(newIndex));
+        } else {
+            updateEvent(new Event('dialog', { speaker: '系统', text: '所有事件已结束。' }));
+        }
     }
-  };
 
-  // 显示下一个事件
-  function nextEvent() {
-    const newIndex = State.incrementIndex();
-    if (newIndex < events.length) {
-      updateEvent(getEvent(newIndex));
-    } else {
-      updateEvent(new Event('dialog', { speaker: '系统', text: '所有事件已结束。' }));
+    // 结束游戏并返回故事
+    function endGame() {
+        isInGame = false;
+        nextEvent();
     }
-  }
 
-  // 结束游戏并返回故事
-  function endGame() {
-    isInGame = false;
-    nextEvent();
-  }
+    // 监听鼠标左键点击事件
+    document.addEventListener('click', function() {
+        // 非游戏状态下才允许推进事件
+        if (!isInGame) {
+            nextEvent();
+        }
+    });
 
-  // 监听鼠标左键点击事件
-  document.addEventListener('click', function() {
-    // 非游戏状态下才允许推进事件
-    if (!isInGame) {
-      nextEvent();
-    }
-  });
+    // 监听空格键事件
+    document.addEventListener('keydown', function(e) {
+        if (e.code === 'Space' && !isInGame) {
+            nextEvent();
+            e.preventDefault();
+        }
+    });
 
-  // 监听空格键事件
-  document.addEventListener('keydown', function(e) {
-    if (e.code === 'Space' && !isInGame) {
-      nextEvent();
-      e.preventDefault();
-    }
-  });
+    // 初始加载第一个事件
+    updateEvent(getEvent(State.getCurrentIndex()));
 </script>
 
 <style>

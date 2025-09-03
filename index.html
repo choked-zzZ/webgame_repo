@@ -9,17 +9,16 @@
 </head>
 
 <body>
-  <header>
+  <!-- <header>
     <div class="title">
       <nav>
         <div class="logo">Go for the unbound</div>
       </nav>
     </div>
-  </header>
+  </header> -->
 
   <main class="auth-container">
     <div class="auth-card">
-      <h2 style="text-align: center;">弈梦</h2>
       
       <div class="game-options">
         <a href="main_game/game.html" class="option-btn" data-number="1">开始游戏</a>
@@ -29,6 +28,7 @@
         <div id="auth-buttons" class="cta-buttons"></div>
       </div>
     </div>
+    <div class="right-image"></div>
   </main>
 
 
@@ -76,7 +76,8 @@
             <p>请先登录以访问此功能</p>
             <div class="modal-buttons">
               <a href="main_page/login.html" class="btn btn-secondary">前往登录</a>
-              <button class="btn btn-secondary" onclick="this.parentElement.parentElement.remove()">取消</button>
+              <a href="index.html" class="btn btn-secondary">取消</a>
+              
             </div>
           </div>
         `;
@@ -95,3 +96,4 @@
 </body>
 
 </html>
+<!-- <button class="btn btn-secondary" onclick="this.parentElement.parentElement.remove()">取消</button> -->

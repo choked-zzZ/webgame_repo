@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>围棋人生 - 点灯游戏集成</title>
-    <link rel="stylesheet" href="lightgame.css">
+    <link rel="stylesheet" href="./lightgame.css">
 </head>
 <body>
     <div id="game-container">
@@ -49,7 +49,7 @@
         // 游戏状态
         const gameState = {
             board: [],
-            size: 5,
+            size: 3,
             moves: 0,
             gameActive: false
         };
@@ -156,6 +156,7 @@
                             "你成功解开了老者的点灯谜题，但他的话语让你陷入沉思：<br><br>" +
                             "<i>\"真正的智慧不在于强行改变，而在于理解其中的联系与平衡。\"</i><br><br>" +
                             "你开始思考，自己一直以来对胜负的执着，是否让你错过了更重要的东西。";
+                         window.parent.endGame();     
                     }
                 }, 1000);
             }

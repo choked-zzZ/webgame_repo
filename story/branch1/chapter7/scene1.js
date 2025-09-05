@@ -23,7 +23,36 @@ const scene1Events7 = [
     new Event('dialog', { speaker: '程若谷', text: '可是，我怕……怕你再一次走不出来。', sprite: 'character.png'}),
     
     // 结尾旁白
-    new Event('dialog', { speaker: '', text: '孟弈空垂下目光，片刻沉默。指尖划过信纸的锋锐笔痕，心中却仿佛响起了那清脆的一声落子。他知道，这一局，不只是与王澹锋的棋。'})
+    new Event('dialog', { speaker: '', text: '孟弈空垂下目光，片刻沉默。指尖划过信纸的锋锐笔痕，心中却仿佛响起了那清脆的一声落子。他知道，这一局，不只是与王澹锋的棋。'}),
+    
+    // 添加选择事件
+    new Event('choice', {
+        text: '玩家选择',
+        options: [
+            {
+                text: '「赴约」接受王澹锋的邀请，前往湖心亭对弈？',
+                nextEventIndex: -1,
+                setFlags: { chapter7Scene1Choice: 'accept' }
+            },
+            {
+                text: '「拒绝」婉拒邀请，暂且将围棋放在一边，享受与若谷的平淡生活？',
+                nextEventIndex: 12,
+                setFlags: { chapter7Scene1Choice: 'refuse' }
+            }
+        ]
+    }),
+    
+    // 拒绝分支剧情
+    new Event('dialog', { speaker: '', text: '孟弈空拿起王澹锋的邀请信，信纸上笔迹端正，字字如战鼓般敲打在心头。然而，他的目光很快落在程若谷身上——她正靠在窗边，阳光洒在她的发梢上，带着一抹温暖的光。'}),
+    new Event('dialog', { speaker: '孟弈空', text: '澹锋在湖心亭等我，可我……不能走。', sprite: '../../../main_page/image/character/yikong.png'}),
+    new Event('dialog', { speaker: '', text: '他深吸一口气，拿起笔，仔细写下回信。字迹沉稳，却带着不容置疑的坚定：'}),
+    new Event('dialog', { speaker: '', text: '“澹锋，承蒙盛情邀请，实感荣幸。然而近期家中事务繁重，无法赴约。望君海涵。孟弈空敬上。”'}),
+    new Event('dialog', { speaker: '', text: '写好信，他轻轻放下，仿佛卸下了心头一块重石。随后，他走到程若谷身边，将信折好，轻轻放在桌上。'}),
+    new Event('dialog', { speaker: '孟弈空', text: '若谷，我婉拒了澹锋的邀请。我不想离开你，也不想再次被输赢束缚。', sprite: '../../../main_page/image/character/yikong.png'}),
+    new Event('dialog', { speaker: '程若谷', text: '你选择的，是生活，而不是棋局。很好，我很高兴。', sprite: 'character.png'}),
+    new Event('dialog', { speaker: '', text: '从此，孟弈空不再奔波于比赛与名利之间。他每日陪伴程若谷散步、下棋、阅读，窗外光影随季节流转，屋内笑声盈满。也许棋盘之外的生活，才是他真正的归宿。'}),
+    new Event('dialog', { speaker: '', text: '【解锁结局：棋盘之外的世界】'}),
+    new Event('end', { data: 'good_ending' })
 ];
 
 export { scene1Events7 };

@@ -4,39 +4,96 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title></title>
+  <title>弈梦 - 主界面</title>
   <link href="main_page/style.css" rel="stylesheet">
 </head>
 
 <body>
-  <header>
+  <!-- <header>
     <div class="title">
       <nav>
         <div class="logo">Go for the unbound</div>
       </nav>
     </div>
-  </header>
+  </header> -->
 
   <main class="auth-container">
     <div class="auth-card">
-      <section class="hero">
-        <h1>弈梦</h1>
-      </section>
-      <div class="cta-buttons">
-        <a href="main_page/register.html" class="btn btn-secondary">注册</a>
-        <a href="main_page/login.html" class="btn btn-secondary">登录</a>
-        <a href="personal-website/self-intro.html" class="btn btn-secondary">关于我们</a>
+      
+      <div class="game-options">
+        <a href="main_game/game.html" class="option-btn" data-number="1">开始游戏</a>
+        <a href="main_page/load_save.html" class="option-btn" data-number="2">加载存档</a>
+        <a href="main_page/achievements.html" class="option-btn" data-number="3">成就界面</a>
+        <a href="personal-website/self-intro.html" class="option-btn" data-number="4">关于我们</a>
+        <div id="auth-buttons" class="cta-buttons"></div>
       </div>
     </div>
+    <div class="right-image"></div>
   </main>
 
 
+
   <script>
-    // 简单的页面交互脚本
-    document.addEventListener('DOMContentLoaded', function () {
-      // 可以在这里添加一些简单的交互逻辑
+    // 检查登录状态并显示相应按钮
+    function updateAuthButtons() {
+      const authButtons = document.getElementById('auth-buttons');
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    
+      if (isLoggedIn) {
+        // 已登录状态：显示退出登录按钮
+        authButtons.innerHTML = '<a href="#" class="btn btn-secondary" onclick="logout()">退出登录</a>';
+      } else {
+        // 未登录状态：显示登录和注册按钮
+        authButtons.innerHTML = `
+          <a href="main_page/login.html" class="btn btn-secondary">登录</a>
+          <a href="main_page/register.html" class="btn btn-secondary">注册</a>
+        `;
+      }
+    }
+  
+    // 退出登录函数
+    function logout() {
+      localStorage.removeItem('isLoggedIn');
+      updateAuthButtons();
+      // 可选择跳转到首页或登录页
+      window.location.href = 'index.html';
+    }
+  
+    // 页面加载时初始化按钮状态
+    window.onload = updateAuthButtons;
+  
+    // 检查登录状态并显示提示
+    function checkLoginAndPrompt(event) {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      if (!isLoggedIn) {
+        event.preventDefault();
+        // 显示登录提示
+        const prompt = document.createElement('div');
+        prompt.className = 'login-prompt-modal';
+        prompt.innerHTML = `
+          <div class="modal-content">
+            <h3>需要登录</h3>
+            <p>请先登录以访问此功能</p>
+            <div class="modal-buttons">
+              <a href="main_page/login.html" class="btn btn-secondary">前往登录</a>
+              <a href="index.html" class="btn btn-secondary">取消</a>
+              
+            </div>
+          </div>
+        `;
+        document.body.appendChild(prompt);
+      }
+    }
+  
+    // 为受保护功能添加点击事件监听
+    document.addEventListener('DOMContentLoaded', function() {
+      const protectedLinks = document.querySelectorAll('.option-btn:not([href*="personal-website"])');
+      protectedLinks.forEach(link => {
+        link.addEventListener('click', checkLoginAndPrompt);
+      });
     });
   </script>
 </body>
 
 </html>
+<!-- <button class="btn btn-secondary" onclick="this.parentElement.parentElement.remove()">取消</button> -->

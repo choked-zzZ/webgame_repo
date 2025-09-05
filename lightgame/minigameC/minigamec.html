@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Mini Game C - 音游Demo</title>
+<link rel="stylesheet" href="minigamec.css">
+
+<!-- 音效 -->
+<audio id="soundA" src="playsound/A.wav" preload="auto"></audio>
+<audio id="soundS" src="playsound/S.wav" preload="auto"></audio>
+<audio id="soundD" src="playsound/D.wav" preload="auto"></audio>
+<!-- 背景音乐 -->
+<audio id="bgm" src="playsound/shimian.mp3" preload="auto" loop></audio>
+
+</head>
+<body>
+<h1>节奏共鸣</h1>
+
+<div class="game" id="game">
+  <div class="lane"></div>
+  <div class="lane"></div>
+  <div class="lane"></div>
+  <div class="judge-line" id="judgeLine"></div>
+</div>
+
+<div id="scoreboard">
+  <div class="scroll">
+    <p>悟: <span id="wu">0</span></p>
+    <p>痴: <span id="chi">0</span></p>
+    <p>惘: <span id="wang">0</span></p>
+    <p>判定: <span id="result">-</span></p>
+  </div>
+</div>
+
+<div id="judgeDisplay">
+  <div id="judgeText"></div>
+  <div id="comboText"></div>
+</div>
+
+<!-- 初始规则 overlay -->
+<div id="overlay">
+  <div class="stack">
+    <div id="rules">
+      <h2>玩法说明</h2>
+      <ul>
+        <li>三条轨道分别对应键盘上的 <span class="keycap">A</span> / <span class="keycap">S</span> / <span class="keycap">D</span>。</li>
+        <li>当 <em>note</em> 下落到判定线（绿色横线）附近时，在合拍时按下对应键进行判定。</li>
+      </ul>
+      <p style="opacity:.8;font-size:14px;">提示：第一次进入页面可能需要点一下页面才能解锁声音。</p>
+    </div>
+    <button id="startBtn">🎵 开始游戏</button>
+  </div>
+</div>
+
+<!-- 结局/章节 overlay -->
+<div id="endingOverlay" style="display:none;">
+  <div class="stack">
+    <div id="endingBox"></div>
+    <button id="continueBtn" style="display:none;">继续游戏</button>
+  </div>
+</div>
+
+<script>
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const startBtn = document.getElementById('startBtn');
+const overlay = document.getElementById('overlay');
+const bgm = document.getElementById('bgm');
+const endingOverlay = document.getElementById('endingOverlay');
+const endingBox = document.getElementById('endingBox');
+const continueBtn = document.getElementById('continueBtn');
+
+let gameStarted = false;
+
+startBtn.addEventListener('click', () => {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  overlay.classList.add('fade-out');
+  setTimeout(() => { overlay.style.display = 'none'; }, 1000);
+  endingOverlay.style.display = "none";
+  gameStarted = true;
+  bgm.currentTime = 0;
+  bgm.play();
+});
+
+continueBtn.addEventListener("click", () => {
+  endingOverlay.style.display = "none";
+  gameStarted = true;
+  bgm.play();
+});
+
+const game = document.getElementById('game');
+const wuEl = document.getElementById('wu');
+const chiEl = document.getElementById('chi');
+const wangEl = document.getElementById('wang');
+const resultEl = document.getElementById('result');
+
+let wu = 0, chi = 0, wang = 0;
+let chiCount = 0, totalHits = 0;
+
+const judgeText = document.getElementById('judgeText');
+const comboText = document.getElementById('comboText');
+let combo = 0;
+
+let noteSpeed = 7;
+let spawnInterval = 700;
+let spawnTimer;
+
+function increaseDifficulty() {
+  noteSpeed += 1;
+  if (spawnInterval > 500) {
+    spawnInterval -= 100; 
+  }
+  clearInterval(spawnTimer);
+  spawnTimer = setInterval(() => {
+    if (gameStarted) {
+      spawnNote(Math.floor(Math.random()*3));
+    }
+  }, spawnInterval);
+}
+
+function showJudge(result) {
+  judgeText.textContent = result;
+  judgeText.className = ""; 
+  void judgeText.offsetWidth;
+
+  if (result === 'PERFECT') {
+    judgeText.classList.add("perfectText");
+  } else if (result === 'GOOD') {
+    judgeText.classList.add("goodText");
+  } else {
+    judgeText.classList.add("missText");
+  }
+
+  judgeText.style.opacity = 1;
+  setTimeout(() => { judgeText.style.opacity = 0; }, 400);
+
+  if (result === 'PERFECT') {
+    combo++;
+    comboText.textContent = combo + " Combo";
+    comboText.style.opacity = 1;
+    comboText.classList.remove("comboJump");
+    void comboText.offsetWidth;
+    comboText.classList.add("comboJump");
+  } else {
+    combo = 0;
+    comboText.style.opacity = 0;
+  }
+}
+
+function playSound(key) {
+  let audio;
+  if (key === 'a') audio = document.getElementById('soundA');
+  if (key === 's') audio = document.getElementById('soundS');
+  if (key === 'd') audio = document.getElementById('soundD');
+  if (audio) {
+    audio.currentTime = 0;
+    audio.play();
+  }
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'a') { judge(0); playSound('a'); }
+  if (e.key.toLowerCase() === 's') { judge(1); playSound('s'); }
+  if (e.key.toLowerCase() === 'd') { judge(2); playSound('d'); }
+});
+
+function spawnNote(lane) {
+  const note = document.createElement('div');
+  note.classList.add('note');
+  note.dataset.lane = lane;
+  note.style.top = '-40px';
+  note.style.left = (lane*250+10) + 'px';
+  game.appendChild(note);
+}
+
+function updateNotes() {
+  if (!gameStarted) return;
+  const notes = document.querySelectorAll('.note');
+  notes.forEach(note => {
+    let y = parseFloat(note.style.top);
+    y += noteSpeed;
+    note.style.top = y + 'px';
+
+    if (y > game.offsetHeight) {
+      wang += 30;
+      resultEl.textContent = 'Miss → 惘+30';
+      note.remove();
+      updateScore();
+      showJudge("MISS");
+    }
+  });
+}
+
+function judge(lane) {
+  if (!gameStarted) return;
+  const notes = document.querySelectorAll('.note');
+  let judged = false;
+  notes.forEach(note => {
+    if (parseInt(note.dataset.lane) === lane && !judged) {
+      const noteY = parseFloat(note.style.top);
+      const diff = (noteY - (game.offsetHeight - 100));
+      const absDiff = Math.abs(diff);
+      totalHits++;
+
+      if (absDiff <= 50) {
+        wu += 3;
+        resultEl.textContent = 'Perfect → 悟+3';
+        showJudge("PERFECT");
+        note.remove();
+      } else if (absDiff <= 110) {
+        wu += 1;
+        resultEl.textContent = 'Good → 悟+1';
+        showJudge("GOOD");
+        note.remove();
+      } else if (diff < -150) {
+        chi += 20;
+        chiCount++;
+        resultEl.textContent = '抢话 → 痴+20';
+        showJudge("MISS");
+        note.remove();
+      } else if (diff > 200) {
+        wang += 40;
+        resultEl.textContent = 'Miss(过晚) → 惘+40';
+        showJudge("MISS");
+        note.remove();
+      } else if (diff > 110 && diff <= 200) {
+        wang += 20;
+        resultEl.textContent = '拖拍 → 惘+20';
+        showJudge("MISS");
+        note.remove();
+      }
+
+      judged = true;
+      updateScore();
+    }
+  });
+}
+
+function updateScore() {
+  wuEl.textContent = wu;
+  chiEl.textContent = chi;
+  wangEl.textContent = wang;
+  if (totalHits > 0 && chiCount/totalHits > 0.35) {
+    chi += 50;
+    chiEl.textContent = chi;
+    resultEl.textContent += ' | 抢话率高 → 痴+50';
+    chiCount = 0; totalHits = 0;
+  }
+  checkEnding();
+}
+
+function checkEnding() {
+  if (wu >= 150) {
+    showEnding("进入 Chapter 3", "<p>你的悟性已达到阈值，新的篇章即将开启。</p>", true);
+    gameStarted = false;
+    clearInterval(spawnTimer);
+    document.querySelectorAll('.note').forEach(note => note.remove());
+  } else if (chi >= 100) {
+    showEnding("焚琴煮鹤亦自焚", "<p>A的世界被围棋所围绕，每一步都在追求无尽的胜利，心中不容忍一丝的失败与妥协。他的执着如同烈火，烧尽了他与亲人朋友之间的关系。他临终前才终于意识到，自己已经失去了所有。孤独与痛苦成了他唯一的陪伴，而那份对围棋的极度渴望，也早已让他陷入了无法自拔的深渊。</p>");
+    gameStarted = false;
+  } else if (wang >= 100) {
+    showEnding("黄粱未熟梦已休", "<p>A的生活渐渐失去了色彩。他沉浸在对围棋的追求中，妻子C和好友B也被迫离他而去。然而这种追求并未带来真正的满足，反而让他变得越来越空虚。每一次失败后，他只感到更加迷茫，心中充满了无尽的遗憾。他开始放弃对生活的热情，任由时间消逝，度过平淡无奇的日子。</p>");
+    gameStarted = false;
+  }
+}
+
+function showEnding(title, text, isChapter=false) {
+  endingOverlay.style.display = "flex";
+  endingBox.innerHTML = "<h2>"+title+"</h2>" + text;
+
+  if (isChapter) {
+    continueBtn.style.display = "block";
+  } else {
+    continueBtn.style.display = "none";
+
+    const restartBtn = document.createElement("button");
+    restartBtn.textContent = "重新开始";
+    restartBtn.className = "restartBtn";
+    restartBtn.addEventListener("click", () => {
+      restartGame();
+    });
+
+    endingBox.appendChild(restartBtn);
+  }
+}
+
+function restartGame() {
+  wu = 0; chi = 0; wang = 0;
+  chiCount = 0; totalHits = 0;
+  wuEl.textContent = 0;
+  chiEl.textContent = 0;
+  wangEl.textContent = 0;
+  resultEl.textContent = "-";
+  noteSpeed = 7; // 恢复到初始速度
+  spawnInterval = 700; // 恢复到初始间隔
+
+  document.querySelectorAll('.note').forEach(note => note.remove());
+
+  endingOverlay.style.display = "none";
+
+  gameStarted = true;
+  bgm.currentTime = 0;
+  bgm.play();
+
+  clearInterval(spawnTimer);
+  spawnTimer = setInterval(() => {
+    if (gameStarted) {
+      spawnNote(Math.floor(Math.random()*3));
+    }
+  }, spawnInterval);
+
+
+
+  endingOverlay.style.display = "none";
+
+  gameStarted = true;
+  bgm.currentTime = 0;
+  bgm.play();
+
+  clearInterval(spawnTimer);
+  spawnTimer = setInterval(() => {
+    if (gameStarted) {
+      spawnNote(Math.floor(Math.random()*3));
+    }
+  }, spawnInterval);
+}
+
+continueBtn.addEventListener("click", () => {
+  window.location.href = "chapter3.html";  
+});
+
+setInterval(updateNotes, 16);
+spawnTimer = setInterval(() => {
+  if (gameStarted) {
+    spawnNote(Math.floor(Math.random()*3));
+  }
+}, spawnInterval);
+setInterval(() => {
+  if (gameStarted) {
+    increaseDifficulty();
+  }
+}, 3000);
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>弈梦 - 视觉小说</title>
+  <link href="game.css" rel="stylesheet">
+</head>
+<body>
+  <div class="game-container">
+    <div class="game-screen">
+      <div class="game-content">
+        游戏内容加载中...
+      </div>
+      <div class="dialog-container">
+        <div class="character-sprite" id="character-sprite"></div> 
+        <div class="dialog-box">
+          <div class="dialog-left">
+            <div class="dialog-speaker" id="dialog-speaker">角色名称</div>
+          </div>
+          <div class="dialog-right"> 
+            <div class="dialog-text" id="dialog-text">这是对话内容区域，将显示角色对话和叙述文本。</div>
+          </div>
+        </div>
+      </div>
+      <div id="game-embed-container" class="game-embed-container"></div>
+    </div>
+  </div>
+  <script type="module" src="../js/gamecontrol.js"></script>
+</body>
+</html>
+<script>
+  // 添加游戏状态变量
+
+  // 移除旧对话系统相关代码
+  // class Dialog { ... }
+  // const dialogs = [ ... ]
+  // function updateDialog(dialog) { ... }
+  // function getDialog(index) { ... }
+
+  // 状态机 - 管理对话状态
+  // 移除旧对话系统相关的State和函数
+  // const State = {
+  //   currentDialogIndex: 0,
+  //   getCurrentIndex: function() {
+  //     return this.currentDialogIndex;
+  //   },
+  //   setCurrentIndex: function(index) {
+  //     this.currentDialogIndex = index;
+  //   },
+  //   incrementIndex: function() {
+  //     this.currentDialogIndex++;
+  //     return this.currentDialogIndex;
+  //   }
+  // };
+  // function nextDialog() {
+  //   const newIndex = State.incrementIndex();
+  //   if (newIndex < dialogs.length) {
+  //     updateDialog(getDialog(newIndex));
+  //   } else {
+  //     updateDialog(new Dialog('系统', '所有对话已结束。'));
+  //   }
+  // }
+  // document.addEventListener('click', nextDialog);
+  // document.addEventListener('keydown', function(e) {
+  //   if (e.code === 'Space') {
+  //     nextDialog();
+  //     e.preventDefault();
+  //   }
+  // });
+  // updateDialog(getDialog(State.getCurrentIndex()));
+
+  // 事件类型定义
+  // 事件类型定义
+    // class Event {
+    //     constructor(type, data,background=null) {
+    //         this.type = type; // 'dialog', 'choice', 'game'
+    //         this.data = data;
+    //         this.background = background;
+    //     }
+    // }
+    
+</script>
+

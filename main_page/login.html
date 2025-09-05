@@ -22,7 +22,7 @@
       <h2>账号登录</h2>
       <div id="message" class="message" style="display: none;"></div>
       
-      <form id="loginForm" class="auth-form">
+      <form id="loginForm" class="auth-form" onsubmit="return validateForm();">
         <div class="form-group">
           <label for="loginUsername">用户名/邮箱</label>
           <input type="text" id="loginUsername" name="loginUsername" required>
@@ -46,16 +46,58 @@
         还没有账号？<a href="register.html">立即注册</a>
       </p>
       <div class="home-link">
-        <a href="index.html" class="btn btn-secondary">首页</a>
+        <a href="../index.html" class="btn btn-secondary">首页</a>
       </div>
     </div>
+    <div class="right-image"></div>
   </main>
 
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const loginForm = document.getElementById('loginForm');
+    // 全局登录验证函数
+    function validateForm() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (username && password) {
+        showMessage('登录成功，正在跳转到主界面...', 'success');
+        // 设置登录状态到localStorage
+        localStorage.setItem('isLoggedIn', 'true');
+        // 使用相对路径跳转到首页
+        setTimeout(() => {
+          // 动态构造根目录路径，适配本地文件和服务器环境
+          const baseUrl = window.location.href.split('/main_page/')[0];
+          window.location.href = baseUrl + '/index.html';
+        }, 1500);
+        return false;
+      } else {
+        showMessage('请输入用户名和密码', 'error');
+        return false;
+      }
+    }
+
+    // 全局消息显示函数
+    function showMessage(message, type) {
       const messageElement = document.getElementById('message');
+      messageElement.textContent = message;
+      messageElement.className = `message ${type}`;
+      messageElement.style.display = 'block';
+
+      messageElement.style.opacity = '0';
+      messageElement.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => {
+        messageElement.style.opacity = '1';
+      }, 10);
+
+      setTimeout(() => {
+        messageElement.style.opacity = '0';
+        setTimeout(() => {
+          messageElement.style.display = 'none';
+        }, 300);
+      }, 5000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
       const usernameInput = document.getElementById('loginUsername');
       const passwordInput = document.getElementById('loginPassword');
 
@@ -81,59 +123,11 @@
         });
       });
 
-      loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value;
-
-        // 表单验证
-        if (!username) {
-          showMessage('请输入用户名或邮箱', 'error');
-          return;
-        }
-
-        if (!password) {
-          showMessage('请输入密码', 'error');
-          return;
-        }
-
-        if (password.length < 6) {
-          showMessage('密码长度不能少于6位', 'error');
-          return;
-        }
-
-        // 模拟登录成功
-        showMessage('登录成功！正在跳转到主界面...', 'success');
-        setTimeout(() => {
-          window.location.href = 'main_game.html';
-        }, 2000);
-      });
-
       // 忘记密码链接
       document.getElementById('forgotPassword').addEventListener('click', function(e) {
         e.preventDefault();
         showMessage('密码找回功能即将上线，敬请期待', 'error');
       });
-
-      function showMessage(message, type) {
-        messageElement.textContent = message;
-        messageElement.className = `message ${type}`;
-        messageElement.style.display = 'block';
-
-        messageElement.style.opacity = '0';
-        messageElement.style.transition = 'opacity 0.3s ease';
-        setTimeout(() => {
-          messageElement.style.opacity = '1';
-        }, 10);
-
-        setTimeout(() => {
-          messageElement.style.opacity = '0';
-          setTimeout(() => {
-            messageElement.style.display = 'none';
-          }, 300);
-        }, 5000);
-      }
     });
   </script>
 </body>
